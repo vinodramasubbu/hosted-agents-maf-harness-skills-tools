@@ -1,17 +1,21 @@
 # InvestIQ: local skills and tools
 
-A minimal, self-contained version of `hosted-agent`, parallel to the remote Toolbox demo.
-The original examples are unchanged. Anthropic through the existing APIM endpoint is the model;
-Microsoft Foundry is only the hosted runtime.
+A self-contained investing research agent built with Microsoft Agent Framework Harness,
+local skills, and custom market-data and research tools. Anthropic provides the model through
+Azure API Management (APIM), and Microsoft Foundry hosts the agent.
 
 ## What's here
+
+This repository demonstrates an agent that researches stocks and ETFs and explains investing
+concepts. The model selects relevant local Markdown skills, loads their instructions on demand,
+and decides which tools are needed to answer each question.
 
 ```text
 main.py                    Harness factory, two tools, and Responses host
 skills/stock-analysis/     Local stock-analysis SKILL.md
 skills/etf-analysis/       Local ETF-analysis SKILL.md
 requirements.txt          Standalone dependencies
-azure.yaml                Separate investiq-skills-and-tools hosted agent
+azure.yaml                Foundry hosted-agent deployment configuration
 ```
 
 The model selects and loads skills on demand and decides which tools to call:
@@ -22,23 +26,39 @@ The model selects and loads skills on demand and decides which tools to call:
 - `search_research(query, kind, limit)` uses the DuckDuckGo backend explicitly for `news` or `web`.
   It returns up to eight qualitative snippets with source links, dates when available, and fetch time.
 
-There is no keyword router, deterministic analysis pipeline, projection calculator, capture layer,
-custom evidence contract, SQL, sandbox, UI, or remote toolbox. Validation only checks tool inputs;
-it does not select a workflow. Concept questions need no data tools. Harness planning, todos,
-compaction, and history remain enabled, with initial mode `execute`.
-Built-in web search and filesystem access are disabled; local skill loading is explicitly allowed.
+Answers cite the fetched market data and research sources and report missing data or tool errors.
+Concept questions can be answered without data tools. Harness planning, todos, compaction, and
+history are enabled, with initial mode `execute`. Built-in web search and filesystem access are
+disabled; local skill loading is explicitly allowed. Analysis is educational, not investment advice.
 
 ## Architecture diagram
 
 ![MAF Harness with local skills, Yahoo Finance and DuckDuckGo tools, and Foundry hosting](./docs/MAF-Harness.png)
 
-The diagram follows the companion Toolbox demo's visual style, but shows the skill directory
-and Python tools inside the hosted package. It covers the Responses request/answer flow,
-Anthropic calls through APIM, progressive skill loading, Yahoo Finance and DuckDuckGo calls,
-tool-result feedback, credentials, and telemetry. It describes the source architecture, not a
-verified cloud deployment. Shapes, text, arrows, and embedded icons remain editable in Excalidraw.
-Icon sources and usage links are included in the diagram; generic Code/Search symbols do not
-represent official Yahoo Finance or DuckDuckGo logos.
+A Responses API request reaches the Harness agent hosted in Microsoft Foundry, which calls
+Anthropic through APIM. The same agent selects skills, calls tools, and produces a sourced answer.
+
+- **Skill selection:** `SkillsProvider` discovers local Markdown skills and exposes their names
+  and descriptions. The model matches them to the question by meaning, then reads the relevant
+  full instructions on demand before stock or ETF analysis: `stock-analysis` for company research,
+  `etf-analysis` for fund research or comparisons. Skills guide analysis and citations; they are
+  not executable workflows or separate agents.
+- **Tool selection:** the model uses the question, loaded skill instructions, tool descriptions,
+  and parameter schemas to decide which tool to call and with what arguments.
+  `fetch_market_data` is the only source for numeric market facts (Yahoo Finance);
+  `search_research` provides qualitative news and context (DuckDuckGo). The host validates inputs
+  and executes the selected Python function, then returns results to the model, which can make
+  further calls or answer with citations and explicit data limitations.
+- **Adaptive execution:** skill and tool choices are model-driven, not keyword-routed or a fixed
+  sequence. For example, MSFT research may use a quote and news, while an ETF comparison may use
+  holdings and fundamentals. Concept questions such as "What is an ETF?" need no data tools.
+- **Hosting and safeguards:** skills and tools ship with the agent; read-only skill loading is
+  automatically approved while general filesystem access and built-in web search stay disabled.
+  APIM credentials come from a Foundry project connection, and optional Application Insights
+  telemetry traces execution.
+
+The diagram describes the application architecture, not deployment status.
+The [Excalidraw source](docs/harness-skills-tools-flow.excalidraw) remains editable.
 
 ## Run locally
 
