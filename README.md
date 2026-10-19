@@ -87,15 +87,43 @@ See [local development](https://learn.microsoft.com/agent-framework/get-started/
 - Use an existing [Microsoft Foundry project](https://ai.azure.com/) with hosted-agent support.
   Obtain its project endpoint and project ARM resource ID from the project's configuration.
   Your signed-in identity needs permission to deploy hosted agents into that project.
-- Have an APIM endpoint that forwards Anthropic Messages API requests, an authorized APIM
-  subscription, and the model identifier accepted by that endpoint. Foundry hosts this Python
-  agent; it does **not** replace Anthropic as the model provider.
-- In the target Foundry project, have an `investiq-apim` connection whose credentials contain
-  `APIM_SUBSCRIPTION_KEY`. Configure its secret securely through your organization's connection
-  management process. The runtime identity must be able to resolve this connection.
 - Allow outbound access from the hosted runtime to APIM, Yahoo Finance, and DuckDuckGo.
   For optional tracing, also allow Application Insights access and grant the runtime identity
   permission to publish telemetry.
+
+#### Set up the LLM endpoint before deployment
+
+Have an APIM endpoint that forwards Anthropic Messages API requests to an accessible Anthropic
+model, with an authorized APIM subscription. Record:
+
+- `ANTHROPIC_BASE_URL`: the APIM Anthropic base URL.
+- `ANTHROPIC_CHAT_MODEL`: the model identifier accepted by that endpoint.
+- `ANTHROPIC_MAX_TOKENS`: an output-token limit supported by the selected model.
+
+**No separate model deployment or model connection in Foundry is required by this example.**
+The Python agent calls Anthropic through APIM directly; Foundry supplies the hosted runtime.
+The model must already be accessible behind APIM before you deploy the agent.
+
+#### Set up the Foundry connection before deployment
+
+In the **same Foundry project that will host the agent**, create or reuse a connection with:
+
+| Setting | Required value |
+| --- | --- |
+| Connection name | `investiq-apim` |
+| Credential field name | `APIM_SUBSCRIPTION_KEY` |
+| Credential value | Your valid APIM subscription key, stored securely |
+| Access | The hosted runtime identity must be allowed to resolve the connection's credentials |
+
+Use your organization's Foundry connection-management process to create the connection and
+store the secret. These exact names match the reference in [azure.yaml](azure.yaml):
+`connections.investiq-apim.credentials.APIM_SUBSCRIPTION_KEY`. If you choose another name,
+update that reference to match. The reference **does not create the connection**.
+
+Setting `$env:APIM_SUBSCRIPTION_KEY` in PowerShell is sufficient for **local execution only**;
+it does not create a Foundry connection or supply the hosted agent's secret.
+Yahoo Finance and DuckDuckGo need no API keys or Foundry connections. Application Insights
+is optional; configure its connection string and telemetry permissions only if you want tracing.
 
 Python 3.13 is the hosted runtime selected in [azure.yaml](azure.yaml); install it locally if
 you also want to run the same runtime on your machine. Deployment uses Foundry's remote build,
