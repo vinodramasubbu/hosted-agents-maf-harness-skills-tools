@@ -155,7 +155,7 @@ Never commit credentials or share environment files or secret-bearing command ou
 ```powershell
 azd deploy investiq-skills-and-tools
 azd ai agent show --output json
-azd ai agent invoke "What is an ETF?"
+azd ai agent invoke "Analyze MSFT using its latest available quote, fundamentals, and recent news. Explain the main business drivers and risks, and cite your sources."
 ```
 
 Deployment packages [main.py](main.py), [requirements.txt](requirements.txt), and the local
@@ -166,10 +166,10 @@ invocations can incur charges; review any CLI confirmation before proceeding.
 
 Open the target project in [Foundry](https://ai.azure.com/), find `investiq-skills-and-tools`
 in its agents list, and select the deployed version. Use the Playground link returned by
-`azd ai agent show` when available. Start with the concept question above, then test the tools:
+`azd ai agent show` when available. Start with the stock analysis above, then try an ETF comparison:
 
 ```powershell
-azd ai agent invoke "Use the stock-analysis skill to research MSFT. Fetch a Yahoo quote and search recent news."
+azd ai agent invoke "Compare VOO and QQQ using available fees, top holdings, and recent context. Explain their exposures and concentration risks, and cite your sources."
 ```
 
 Confirm the answer cites Yahoo data with a fetch timestamp and DuckDuckGo research with links,
@@ -194,11 +194,23 @@ and [hosted-agent overview](https://learn.microsoft.com/azure/ai-foundry/agents/
 for platform requirements. No cloud resources are created just by adding this folder or editing
 this README.
 
-## Demonstrate
+## Test questions
 
-- "Use the stock-analysis skill to research MSFT. Fetch a Yahoo quote and search recent news."
-- "Use the ETF-analysis skill to compare VOO and QQQ, including top holdings and recent context."
-- "What is an ETF?" (no data tools)
+Try these in the Foundry Playground or with `azd ai agent invoke "<question>"`:
+
+| Focus | Question |
+| --- | --- |
+| Stock analysis | "Analyze MSFT using its latest available quote, fundamentals, and recent news. What are its main business drivers and risks?" |
+| Stock news | "What has been driving NVDA lately? Separate news-backed developments from your interpretation." |
+| Stock price history | "Show AAPL's daily closing prices for the last five trading days, with the currency and fetch timestamp." |
+| ETF analysis | "Analyze VTI's objective, available fees, top holdings, and concentration risks." |
+| ETF comparison | "Compare VOO and QQQ using available fees, top holdings, and recent context. How do their exposures differ?" |
+| Missing data | "Use the ETF-analysis skill to research MSFT's ETF holdings. If the request does not apply or data is unavailable, explain why rather than inventing holdings." |
+| Concept explanation | "What is an ETF, and how does an expense ratio work?" |
+
+For data-backed answers, check for Yahoo source metadata, research links when used, honest
+reporting of missing data, and the educational disclaimer. The concept question should need no
+data tools. These are manual checks, not guarantees of a particular tool-call sequence.
 
 Inspect Foundry traces for skill loading, `fetch_market_data`, and `search_research`.
 Skill/tool selection is model-driven rather than guaranteed by application routing.
