@@ -1,0 +1,7 @@
+agent-framework-core==1.21.0
+agent-framework-anthropic==1.0.0b261002
+agent-framework-foundry-hosting==1.0.0b261002
+anthropic>=0.75
+curl-cffi>=0.7
+ddgs>=9.0
+yfinance>=0.2.54

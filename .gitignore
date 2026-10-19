@@ -1,0 +1,22 @@
+# Local credentials and deployment state
+.env
+.env.*
+!.env.example
+.azure/
+
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Local editor settings and logs
+.vscode/
+.idea/
+*.log
