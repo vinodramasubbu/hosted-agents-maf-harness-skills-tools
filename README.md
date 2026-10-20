@@ -280,15 +280,54 @@ The Harness discovers it when constructing an agent; no router edits are needed.
 
 ## Tests
 
-From the workspace root, using its existing development environment:
+### Manual testing against Foundry
+
+From this repository folder, activate your Python environment and install the client dependencies:
 
 ```powershell
-& .\.venv\Scripts\python.exe -m pytest -q tests\test_skills_tools_hosting.py
+python -m pip install "azure-ai-projects>=2.7.0" azure-identity
+az login
 ```
 
-Tests cover tool input validation, source metadata, provider failures, host lifecycle, and the
-real Harness skill-loading/tool-calling loop with mocked Anthropic and data-provider responses.
-They do not contact APIM, Foundry, Yahoo Finance, or DuckDuckGo.
+`DefaultAzureCredential` uses your available Azure credentials; `az login` is one way to supply
+them. Your identity must have access to the target Foundry project and agent.
+In [test.py](test.py), set `endpoint`, `agent_name`, and `agent_version` to your deployed agent's
+values. The checked-in sample values may not match your deployment.
+
+**Terminal:** edit the question passed to `run_question()` in the `if __name__ == "__main__":`
+block, then run:
+
+```powershell
+python .\test.py
+```
+
+**Browser:** start the local server:
+
+```powershell
+python .\demo_server.py
+```
+
+Open **http://127.0.0.1:8765**, enter a question from [Test questions](#test-questions), and click
+**Ask agent**. Keep the terminal running; press Ctrl+C to stop it. The server calls the same
+`run_question()` function as the terminal client.
+
+Both paths display the answer and any tool or skill-loading calls exposed by the endpoint.
+Check citations, timestamps, and explicit data limitations. If call details are absent, inspect
+Foundry traces rather than assuming no tools or skills were used. Errors appear in the terminal
+or browser status. Each invocation creates a fresh session and attempts to delete it afterward;
+these are single-question tests, not a continuing conversation, and can incur charges.
+
+### Automated local tests
+
+Run the included client and HTTP server tests:
+
+```powershell
+python -m unittest discover -s tests -p test_local_demo.py -v
+```
+
+These tests cover response/tool/skill display, session cleanup on success and failure, input
+validation, local-request restrictions, and sanitized provider errors. Foundry calls are mocked;
+the tests do not contact APIM, Foundry, Yahoo Finance, or DuckDuckGo.
 
 ## Demo boundaries
 
