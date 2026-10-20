@@ -1,8 +1,14 @@
 # InvestIQ: local skills and tools
 
-A self-contained investing research agent built with Microsoft Agent Framework Harness,
+A self-contained investing research agent based on the [Microsoft Agent Framework Agent Harness](https://learn.microsoft.com/en-us/agent-framework/concepts/harness?pivots=programming-language-python),
 local skills, and custom market-data and research tools. Anthropic provides the model through
 Azure API Management (APIM), and Microsoft Foundry hosts the agent.
+
+For the underlying framework and hosting guidance, see:
+
+- [Agent Harness concepts (Python)](https://learn.microsoft.com/en-us/agent-framework/concepts/harness?pivots=programming-language-python)
+- [Get started with Agent Harness](https://learn.microsoft.com/en-us/agent-framework/get-started/harness)
+- [Host an agent (Python)](https://learn.microsoft.com/en-us/agent-framework/get-started/hosting?pivots=programming-language-python)
 
 ## What's here
 
