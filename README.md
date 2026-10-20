@@ -84,33 +84,6 @@ The entry point reads environment variables, not a sibling project's `.env` file
 Use the Foundry local invocation tooling in a second terminal to send Responses requests.
 See [local development](https://learn.microsoft.com/agent-framework/get-started/hosting?pivots=programming-language-python).
 
-## Local HTML demo
-
-To ask an **already deployed** agent from a browser, use the small local Python server.
-It calls `run_question()` in [test.py](test.py) and displays the same text output, including
-tool and skill-loading calls only when the endpoint exposes them. No credentials enter the browser.
-
-Use an Azure-authenticated Python environment with `azure-ai-projects>=2.7.0` and `azure-identity`
-installed. Check `endpoint`, `agent_name`, and `agent_version` in [test.py](test.py) match your
-deployment, then run:
-
-```powershell
-python -m pip install "azure-ai-projects>=2.7.0" azure-identity
-python .\demo_server.py
-```
-
-Open **http://127.0.0.1:8765**, enter a question, and click **Ask agent**.
-Keep the terminal open; Ctrl+C stops the server. The page must be served by this Python server,
-not opened directly as an HTML file. Each question creates a fresh session and deletes it afterward;
-there is no follow-up history. Calls can incur charges. The server accepts only local requests
-and runs one invocation at a time. This local client does not deploy or change the hosted agent.
-
-Run the local client and HTTP tests without contacting Foundry:
-
-```powershell
-python -m unittest discover -s tests -p test_local_demo.py -v
-```
-
 ## Foundry configuration
 
 ### 1. Prerequisites
